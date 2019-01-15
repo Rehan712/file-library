@@ -1,24 +1,12 @@
-// var http = require('http');
-// var url = require('url');
 
-
-
-// var server = http.createServer(function(req,res){
-// 	console.log('this is the headers',req.headers)
-// 	var parcedUrl = url.parse(req.url);
-// 	var path = parcedUrl.pathname
-	
-// 	res.send('Hello World')
-// 	console.log('this is the parsed url ',parcedUrl)
-// })
-
-// server.listen(3000,()=>console.log('node server is listening on port 3000'))
 
 
 var http = require('http');
 var url = require('url');
 var myFileLib = require('./lib/data');
-var StringDecoder = require('string_decoder').StringDecoder
+var StringDecoder = require('string_decoder').StringDecoder;
+var handlers = require('./lib/handlers')
+var helpers = require('./lib/helpers')
  // Configure the server to respond to all requests with a string
 var server = http.createServer(function(req,res){
 
@@ -46,14 +34,15 @@ var server = http.createServer(function(req,res){
   })
   req.on('end',()=>{
   	buffer += decoder.end();
-  	buffer = isJson(buffer) ? JSON.parse(buffer) : {} 
+  	buffer = helpers.isJson(buffer) ? JSON.parse(buffer) : {} 
   	console.log('this si the buffer',buffer)
   	var chosenHandler = router[trimmedPath] ? router[trimmedPath] : router.notFound;
   	var data = {
   		headers:req.headers,
   		path,
   		body:buffer,
-  		query:parsedUrl.query
+  		query:parsedUrl.query,
+  		method
   	}
   	chosenHandler(data,(status,response)=>{
   		status = status ? status : 200;
@@ -66,61 +55,8 @@ var server = http.createServer(function(req,res){
   // Send the response
 });
 
-function isJson(str) {
-	try{
-		JSON.parse(str)
-		return true
-	}catch(e){
-		return false
-	}
-	return true
-}
 
-var handlers = {};
 
-handlers.createFile = (data,callback)=>{
-	myFileLib.createFile('test','pakage.json',{author:'rehan'},(err)=>{
-		if(err){
-			callback(400,{message:{err}})
-		}else{
-			callback(200,{message:'file created successfully'})
-		}
-	})
-}
-
-handlers.notFound = (data,callback)=>{
-	callback(404,{message:'not found'})
-}
-
-handlers.readFile = (data,callback)=>{
-	myFileLib.readFile('test','pakage.json',(err,fileData)=>{
-		if(err){
-			callback(400,{message:err})
-		}else{
-			callback(200, {data:fileData})
-		}
-	})
-}
-
-handlers.updateFile = (data,callback)=>{
-	myFileLib.updateFile('test','pakage.json',{license:'MIT'},(err)=>{
-		if(err){
-			callback(400,{message:err})
-		}else{
-			callback(200,{message:'file updated successfully'});
-		}
-	})
-}
-
-handlers.deleteFile = (data,callback)=>{
-	myFileLib.deleteFile('test','pakage.json',(err)=>{
-		if(err){
-			callback(400,{message:err})
-		}else{
-			callback(200,{message:'file deleted successfully'})
-		}
-	})
-}
 
 
 var router = {
@@ -128,6 +64,7 @@ var router = {
 	createFile:handlers.createFile,
 	updateFile:handlers.updateFile,
 	deleteFile:handlers.deleteFile,
+	users:handlers.users,
 	notFound:handlers.notFound
 }
 

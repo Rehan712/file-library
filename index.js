@@ -66,7 +66,8 @@ var router = {
 	deleteFile:handlers.deleteFile,
 	users:handlers.users,
   tokens:handlers.tokens,
-	notFound:handlers.notFound
+	notFound:handlers.notFound,
+	checks:handlers.checks
 }
 
 // Start the server

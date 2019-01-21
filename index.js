@@ -1,17 +1,29 @@
+/*
+ * Primary file for API
+ *
+ */
+
+// Dependencies
 var server = require('./lib/server');
-var workers = require('./lib/workers')
+var workers = require('./lib/workers');
 
-
+// Declare the app
 var app = {};
 
-app.init = ()=>{
-	server.init()
+// Init function
+app.init = function(){
 
-	workers.init()
-}
+  // Start the server
+  server.init();
+
+  // Start the workers
+  workers.init();
+
+};
+
+// Self executing
+app.init();
 
 
-app.init()
-
-
-module.exports = app
+// Export the app
+module.exports = app;
